@@ -41,12 +41,15 @@ optimize_map <- function(efficiency,
                          cl = NULL) {
   prior_type <- prior_type
 
+  # Define the objective function
   full_objective <- function(a, b, c, d, g_min, g_max, efficiency) {
     if (prior_type == "polar") {
       prior_code <- 2
     } else {
       prior_code <- 1
     }
+
+    # Step 1. Use the supplied parameters to estimate a candidate attention gain map.
     gain_map <-
       estimate_candidate_gain_map(
         efficiency,
@@ -61,15 +64,19 @@ optimize_map <- function(efficiency,
         g_max = g_max
       )
 
+    # If those parameters return no map satisfying the constraints produce an Inf.
     if (!gain_map$didconverge) {
       # If a map gain constraint not satisfied then fail
       return(Inf)
     }
 
-    data     <-
+    # package up the attention map
+    attention_map_1D <-
       data.frame(c_deg = gain_map$eccentricity,
                  y.scale = gain_map$y.scale)
-    my_map   <- searchR::fit_maps(list(data))
+
+    # turn the 1D attention map into a 2D attention field.
+    my_map   <- searchR::fit_maps(list(attention_map_1D))
     file_id <-
       paste0('/tmp/', stringi::stri_rand_strings(1, 16), '.mat')
     searchR::store_maps_disk(file_id, my_map)
@@ -77,7 +84,10 @@ optimize_map <- function(efficiency,
     ntrials <- n_trials
     radius <- 8
     contrast <- .175
-    seed_val <- sample(1:100000, 1)
+    seed_val <- sample(1:100000, 1) # new random seed each time the code runs.
+
+
+    # Step 2. Run the search with the new attention map.
     model_search <-
       searchR::run_single_search(
         file_id,
@@ -89,28 +99,34 @@ optimize_map <- function(efficiency,
         search_params = params_detection,
         seed_val = seed_val,
         single_thread = single_thread
-      )
+      ) # generic code to run the model. key concept is that the attention map is loaded into the model from disk at runtime via the "file_id" parameter.
 
+
+    # Step 3. Transform the raw output from the search into a format used for a. maximum accuracy calculation b. maximum likelihood calculation.
     opt_crit <-
-      model_search %>% searchR::find_optimal_criterion() %>% .$optim %>% .$bestmem
+      model_search %>% searchR::find_optimal_criterion() %>% .$optim %>% .$bestmem # optimal criterion search.
 
     model_search_summary <-
       model_search %>% searchR::import_model(., criterion = opt_crit) %>%
       humansearchdata::add_threshold(.) %>%
       humansearchdata::add_accuracy() %>%
-      searchR::summary_search()
+      searchR::summary_search() # compute the performance of the model resulting from using the estimated attention map
 
+    # Rare, but to avoid 0s (bad for maximum likelihood) we substitute the proportion with 1 (2 * num_trials_human)
     model_search_summary$prop <-
       ifelse(model_search_summary$prop == 0,
-             1 / 2400,
+             1 / 4800,
              model_search_summary$prop)
-    human_data$prop <-
-      ifelse(human_data$prop == 0, 1 / 2400, human_data$prop)
 
+    human_data$prop <-
+      ifelse(human_data$prop == 0, 1 / 4800, human_data$prop)
+
+    # Normalize so sum(prop) = 1
     model_search_summary$prop <-
       model_search_summary$prop / sum(model_search_summary$prop)
     human_data$prop <- human_data$prop / sum(human_data$prop)
 
+    # Formatting for maximum likelihood calculation. And for data storage.
     A <-
       merge(
         model_search_summary,
@@ -123,16 +139,18 @@ optimize_map <- function(efficiency,
         prop.model = sum(prop.model, na.rm = TRUE),
         prop.human = sum(prop.human, na.rm = TRUE)
       )
-    gc(reset = TRUE)
+
+    gc(reset = TRUE) # some silliness to try and avoid crashes on the machine "lennon". don't think it is working.
 
     if (subject_fit) {
-      error <- -sum(A$prop.human * log(A$prop.model))
+      error <- -sum(A$prop.human * log(A$prop.model)) # neg. log likelihood
     } else {
       error <-
         sum(A$prop.model[A$type == "fh" |
-                           A$type == "miss" | A$type == "fa"])
+                           A$type == "miss" | A$type == "fa"]) # error
     }
 
+    # formatting for storing intermediate data.
     if (!is.null(store_pop)) {
       results_list <- list(
         list(
@@ -150,13 +168,19 @@ optimize_map <- function(efficiency,
           error = error
         )
       )
+
       save(file = paste0(store_pop, stringi::stri_rand_strings(1, 16)),
            results_list)
     }
-
     return(error)
+
   }
-  f <- function(x) {
+
+  # A wrapper function for the objective function.
+  # Only required because of lack in consistency between
+  # how different optimization package handle input variables.
+  # This wrapper is designed for use with DEoptim.
+  wrapper_full_objective <- function(x) {
     try(return({
       full_objective(
         a = x[1],
@@ -168,12 +192,13 @@ optimize_map <- function(efficiency,
         efficiency = x[7]
       )
     }))
-    return(Inf)
+    return(Inf) # If there is a failure, return Inf. DEOptim handles this.
   }
 
   if (is.null(cl)) {
     cl <- parallel::makeCluster(1)
-  }
+  } # not sure if necessary but ensures the code will run asis even when no cluster is supplied.
+
   parallel::clusterExport(
     cl = cl,
     varlist = c(
