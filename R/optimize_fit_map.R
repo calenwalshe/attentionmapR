@@ -63,26 +63,22 @@ optimize_map <- function(efficiency,
         g_min = g_min,
         g_max = g_max
       )
-
     # If those parameters return no map satisfying the constraints produce an Inf.
     if (!gain_map$didconverge) {
       # If a map gain constraint not satisfied then fail
       return(Inf)
     }
-
     # package up the attention map
-    attention_map_1D <-
-      data.frame(c_deg = gain_map$eccentricity,
+    attention_map_1D <- data.frame(c_deg = gain_map$eccentricity,
                  y.scale = gain_map$y.scale)
 
     # turn the 1D attention map into a 2D attention field.
     my_map   <- searchR::fit_maps(list(attention_map_1D))
-    file_id <-
-      paste0('/tmp/', stringi::stri_rand_strings(1, 16), '.mat')
+    file_id  <- paste0('/tmp/', stringi::stri_rand_strings(1, 16), '.mat')
     searchR::store_maps_disk(file_id, my_map)
 
-    ntrials <- n_trials
-    radius <- 8
+    ntrials  <- n_trials
+    radius   <- 8
     contrast <- .175
     seed_val <- sample(1:100000, 1) # new random seed each time the code runs.
 
@@ -113,34 +109,28 @@ optimize_map <- function(efficiency,
       searchR::summary_search() # compute the performance of the model resulting from using the estimated attention map
 
     # Rare, but to avoid 0s (bad for maximum likelihood) we substitute the proportion with 1 (2 * num_trials_human)
-    model_search_summary$prop <-
-      ifelse(model_search_summary$prop == 0,
-             1 / 4800,
+    model_search_summary$prop <- ifelse(model_search_summary$prop == 0, 1 / 4800,
              model_search_summary$prop)
 
-    human_data$prop <-
-      ifelse(human_data$prop == 0, 1 / 4800, human_data$prop)
+    human_data$prop <- ifelse(human_data$prop == 0, 1 / 4800, human_data$prop)
 
     # Normalize so sum(prop) = 1
-    model_search_summary$prop <-
-      model_search_summary$prop / sum(model_search_summary$prop)
+    model_search_summary$prop <- model_search_summary$prop / sum(model_search_summary$prop)
     human_data$prop <- human_data$prop / sum(human_data$prop)
 
     # Formatting for maximum likelihood calculation. And for data storage.
     A <-
-      merge(
-        model_search_summary,
+      merge(model_search_summary,
         human_data,
         by = c("radius", "dist.group", "dist.group.click", "type"),
         suffixes = c(".model", ".human")
       )
+    
     A <-
       A %>% group_by(dist.group, type) %>% summarize(
         prop.model = sum(prop.model, na.rm = TRUE),
         prop.human = sum(prop.human, na.rm = TRUE)
       )
-
-    gc(reset = TRUE) # some silliness to try and avoid crashes on the machine "lennon". don't think it is working.
 
     if (subject_fit) {
       error <- -sum(A$prop.human * log(A$prop.model)) # neg. log likelihood
