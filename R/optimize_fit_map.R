@@ -84,8 +84,7 @@ optimize_map <- function(efficiency,
 
 
     # Step 2. Run the search with the new attention map.
-    model_search <-
-      searchR::run_single_search(
+    model_search <- searchR::run_single_search(
         file_id,
         efficiency,
         contrast,
@@ -102,8 +101,7 @@ optimize_map <- function(efficiency,
     opt_crit <-
       model_search %>% searchR::find_optimal_criterion() %>% .$optim %>% .$bestmem # optimal criterion search.
 
-    model_search_summary <-
-      model_search %>% searchR::import_model(., criterion = opt_crit) %>%
+    model_search_summary <- model_search %>% searchR::import_model(., criterion = opt_crit) %>%
       humansearchdata::add_threshold(.) %>%
       humansearchdata::add_accuracy() %>%
       searchR::summary_search() # compute the performance of the model resulting from using the estimated attention map
@@ -111,8 +109,7 @@ optimize_map <- function(efficiency,
     # Rare, but to avoid 0s (bad for maximum likelihood) we substitute the proportion with 1 (2 * num_trials_human)
     model_search_summary$prop <- ifelse(model_search_summary$prop == 0, 1 / 4800,
              model_search_summary$prop)
-
-    human_data$prop <- ifelse(human_data$prop == 0, 1 / 4800, human_data$prop)
+    human_data$prop           <- ifelse(human_data$prop == 0, 1 / 4800, human_data$prop)
 
     # Normalize so sum(prop) = 1
     model_search_summary$prop <- model_search_summary$prop / sum(model_search_summary$prop)
