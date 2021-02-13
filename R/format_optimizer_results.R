@@ -12,26 +12,20 @@ format_optimizer_results <- function(optimized_results) {
   sample_type <- optimized_results$human_search_nested$sample_type
   subject     <- optimized_results$human_search_nested$subject
 
-  scale.dist <-
-    optimized_results$human_data$radius %>% unique() %>% .[1] / 8 # a hack, but good. replace with something better?
-  map_prior <- sample_type
+  scale.dist <- optimized_results$human_data$radius %>% unique() %>% .[1] / 8 # a hack, but good. replace with something better?
+  map_prior  <- sample_type
   prior_type <- sample_type
-  contrast <- .175 # only thing we are doing for now. change later.
-  prior.scale <- 1 # legacy
-  n_rings <- NA # legacy, not used.
+  contrast   <- .175 # only thing we are doing for now. change later.
+
+  prior.scale   <- 1 # legacy
+  n_rings       <- NA # legacy, not used.
   detect_params <- optimized_results$params_detection
-  params <-
-    c(
-      optimized_results$optim_results$optim$bestmem,
-      optimized_results$optim_results$optim$bestval
-    )
-  best_node <-
-    purrr::map(optimized_results$full_step_results, function(x) {
-      (x[[1]]$error == optimized_results$optim_results$optim$bestval)
-      #browser()
-      #new_params <- with(x[[1]], c(a,b,c,d,g_min,g_max, efficiency, error))
-      #ismatched <- all(params == new_params)
-    }) %>% unlist() %>% which()
+  params <- c(optimized_results$optim_results$optim$bestmem, optimized_results$optim_results$optim$bestval)
+  best_node <- purrr::map(optimized_results$full_step_results, function(x) {
+    (x[[1]]$error == optimized_results$optim_results$optim$bestval)
+  }) %>% 
+  unlist() %>% 
+  which()
 
   best_node <- best_node[1]
   a           <-
