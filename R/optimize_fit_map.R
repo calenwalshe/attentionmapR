@@ -22,25 +22,14 @@
 #' @export
 #'
 #' @examples
-optimize_map <- function(efficiency,
-                         prior_type,
-                         params_detection,
+optimize_map <- function(efficiency, prior_type, params_detection, 
                          lower_bound = list(c(.001, .001, .001, .001, .6, 1, .65)),
-                         upper_bound = list(c(4.5, 5, 4.5, 5, 1, 1, 1)),
-                         seed_val = 1,
-                         neural_resource,
-                         n_parallel = 1,
-                         human_data,
-                         itermax = 2,
-                         n_trials = 2,
-                         NP = 2,
-                         start_params = NULL,
-                         subject_fit = F,
-                         store_pop = NULL,
-                         single_thread = FALSE,
-                         cl = NULL) {
-  prior_type <- prior_type
+                         upper_bound = list(c(4.5, 5, 4.5, 5, 1, 1, 1)), seed_val = 1, neural_resource,
+                         n_parallel = 1, human_data, itermax = 2, n_trials = 2, NP = 2, start_params = NULL, subject_fit = F,
+                         store_pop = NULL, single_thread = FALSE, cl = NULL) {
 
+  prior_type <- prior_type
+  
   # Define the objective function
   full_objective <- function(a, b, c, d, g_min, g_max, efficiency) {
     if (prior_type == "polar") {
