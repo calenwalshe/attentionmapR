@@ -20,18 +20,17 @@ format_optimizer_results <- function(optimized_results) {
   prior.scale   <- 1 # legacy
   n_rings       <- NA # legacy, not used.
   detect_params <- optimized_results$params_detection
-  params <- c(optimized_results$optim_results$optim$bestmem, optimized_results$optim_results$optim$bestval)
-  best_node <- purrr::map(optimized_results$full_step_results, function(x) {
+  params        <- c(optimized_results$optim_results$optim$bestmem, optimized_results$optim_results$optim$bestval)
+  
+  best_node     <- purrr::map(optimized_results$full_step_results, function(x) {
     (x[[1]]$error == optimized_results$optim_results$optim$bestval)
   }) %>% 
   unlist() %>% 
   which()
 
   best_node <- best_node[1]
-  a           <-
-    optimized_results$full_step_results[[best_node]][[1]]$gain_map$a
-  b         <-
-    optimized_results$full_step_results[[best_node]][[1]]$gain_map$b
+  a <- optimized_results$full_step_results[[best_node]][[1]]$gain_map$a
+  b <- optimized_results$full_step_results[[best_node]][[1]]$gain_map$b
   c         <-
     optimized_results$full_step_results[[best_node]][[1]]$gain_map$c
   d          <-
