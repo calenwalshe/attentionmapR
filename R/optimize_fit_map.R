@@ -73,22 +73,13 @@ optimize_map <- function(efficiency, prior_type, params_detection,
 
 
     # Step 2. Run the search with the new attention map.
-    model_search <- searchR::run_single_search(
-        file_id,
-        efficiency,
-        contrast,
-        ntrials,
-        radius,
-        priorType = prior_code,
-        search_params = params_detection,
-        seed_val = seed_val,
-        single_thread = single_thread
-      ) # generic code to run the model. key concept is that the attention map is loaded into the model from disk at runtime via the "file_id" parameter.
+    model_search <- searchR::run_single_search(file_id, efficiency, contrast,
+        ntrials, radius, priorType = prior_code, search_params = params_detection,
+        seed_val = seed_val, single_thread = single_thread) # generic code to run the model. key concept is that the attention map is loaded into the model from disk at runtime via the "file_id" parameter.
 
 
     # Step 3. Transform the raw output from the search into a format used for a. maximum accuracy calculation b. maximum likelihood calculation.
-    opt_crit <-
-      model_search %>% searchR::find_optimal_criterion() %>% .$optim %>% .$bestmem # optimal criterion search.
+    opt_crit <- model_search %>% searchR::find_optimal_criterion() %>% .$optim %>% .$bestmem # optimal criterion search.
 
     model_search_summary <- model_search %>% searchR::import_model(., criterion = opt_crit) %>%
       humansearchdata::add_threshold(.) %>%
