@@ -31,8 +31,7 @@ format_optimizer_results <- function(optimized_results) {
   best_node <- best_node[1]
   a <- optimized_results$full_step_results[[best_node]][[1]]$gain_map$a
   b <- optimized_results$full_step_results[[best_node]][[1]]$gain_map$b
-  c         <-
-    optimized_results$full_step_results[[best_node]][[1]]$gain_map$c
+  c <- optimized_results$full_step_results[[best_node]][[1]]$gain_map$c
   d          <-
     optimized_results$full_step_results[[best_node]][[1]]$gain_map$d
   g_min          <-
