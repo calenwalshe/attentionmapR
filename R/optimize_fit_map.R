@@ -178,6 +178,7 @@ optimize_map <- function(efficiency,
   # Only required because of lack in consistency between
   # how different optimization package handle input variables.
   # This wrapper is designed for use with DEoptim.
+
   wrapper_full_objective <- function(x) {
     try(return({
       full_objective(
