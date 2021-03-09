@@ -1,37 +1,56 @@
 #load(file = '/tmp/best_fits')
 map(list.files('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/attentionmapR/R/', full.names = T), source)
+# Anqi
 global_start <- new.env()
 global_start$start_params <- best_fit_anqi_uniform$optim_results$member$pop
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/_scripts/best_fit_anqi_uniform.R', 'best_fit_anqi_uniform', 
-                         exportEnv = "best_fit_anqi_uniform", 
+rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/_scripts/best_fit_anqi_uniform.R', 'best_fit_anqi_uniform',
+                         exportEnv = "best_fit_anqi_uniform",
                          importEnv = global_start)
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), best_fit_anqi_uniform)
 
 global_start$start_params <- best_fit_anqi_polar$optim_results$member$pop
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/_scripts/best_fit_anqi_polar.R', 'best_fit_anqi_polar', 
-                         exportEnv = "best_fit_anqi_polar", 
+rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/_scripts/best_fit_anqi_polar.R', 'best_fit_anqi_polar',
+                         exportEnv = "best_fit_anqi_polar",
                          importEnv = global_start)
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), best_fit_anqi_polar)
 
+# rcw
 
 global_start$start_params <- rbind(best_fit_rcw_uniform$optim_results$member$pop,best_fit_rcw_uniform$optim_results$member$pop)
 #global_start$start_params[,7] <- NULL
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/_scripts/best_fit_rcw_uniform.R', 'best_fit_rcw_uniform', 
-                         exportEnv = "best_fit_rcw_uniform", 
+rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/_scripts/best_fit_rcw_uniform.R', 'best_fit_rcw_uniform',
+                         exportEnv = "best_fit_rcw_uniform",
                          importEnv = global_start)
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), best_fit_rcw_uniform)
 
 global_start$start_params <- NULL
 #global_start$start_params[,7] <- .79
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/_scripts/best_fit_rcw_polar.R', 'best_fit_rcw_polar', 
-                         exportEnv = "best_fit_rcw_polar", 
+rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/_scripts/best_fit_rcw_polar.R', 'best_fit_rcw_polar',
+                         exportEnv = "best_fit_rcw_polar",
                          importEnv = global_start)
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), best_fit_rcw_polar)
 
+# can uniform
+global_start <- new.env()
+global_start$start_params <- NULL
+rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/_scripts/best_fit_can_uniform.R', 'best_fit_can_uniform',
+                         exportEnv = "best_fit_can_uniform",
+                         importEnv = global_start)
+file_code <- stringi::stri_rand_strings(1, 16)
+save(file = paste0('/tmp/', file_code), best_fit_can_uniform)
+
+global_start <- new.env()
+global_start$start_params <- NULL
+best_fit_can_uniform <- system.file("scripts", "fitting_scripts", "best_fit_can_polar.R", package = "attentionmapsR")
+rstudioapi::jobRunScript(best_fit_can_uniform, 'best_fit_can_polar',
+                         exportEnv = "best_fit_can_polar",
+                         importEnv = global_start)
+file_code <- stringi::stri_rand_strings(1, 16)
+save(file = paste0('/tmp/', file_code), best_fit_can_polar)
 
 ## Comment out.
 best_fits <- NULL
@@ -70,44 +89,44 @@ efficiency_map_1D <- do.call(rbind, all_fits_format)
 ## Comment out
 # Rcw
 #global_start$start_params <- best_fit_rcw_polar$optim_results$member$pop
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/flat_rcw_polar.R', 'flat_rcw_polar', 
+rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/flat_rcw_polar.R', 'flat_rcw_polar',
                          exportEnv = "flat_rcw_polar")
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), flat_rcw_polar)
 
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/flat_rcw_uniform.R', 'flat_rcw_uniform', 
+rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/flat_rcw_uniform.R', 'flat_rcw_uniform',
                          exportEnv = "flat_rcw_uniform")
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), flat_rcw_uniform)
 
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/optimal_rcw_polar.R', 'optimal_rcw_polar', 
+rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/optimal_rcw_polar.R', 'optimal_rcw_polar',
                          exportEnv = "optimal_rcw_polar")
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), optimal_rcw_polar)
 
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/optimal_rcw_uniform.R', 'optimal_rcw_uniform', 
+rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/optimal_rcw_uniform.R', 'optimal_rcw_uniform',
                          exportEnv = "optimal_rcw_uniform")
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), optimal_rcw_uniform)
 
 ## Anqi
 #global_start$start_params <- best_fit_anqi_polar$optim_results$member$pop
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/flat_anqi_polar.R', 'flat_anqi_polar', 
+rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/flat_anqi_polar.R', 'flat_anqi_polar',
                          exportEnv = "flat_anqi_polar")
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), flat_anqi_polar)
 
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/flat_anqi_uniform.R', 'flat_anqi_uniform', 
+rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/flat_anqi_uniform.R', 'flat_anqi_uniform',
                          exportEnv = "flat_anqi_uniform")
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), flat_anqi_uniform)
 
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/optimal_anqi_polar.R', 'optimal_anqi_polar', 
+rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/optimal_anqi_polar.R', 'optimal_anqi_polar',
                          exportEnv = "optimal_anqi_polar")
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), optimal_anqi_polar)
 
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/optimal_anqi_uniform.R', 'optimal_anqi_uniform', 
+rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/optimal_anqi_uniform.R', 'optimal_anqi_uniform',
                          exportEnv = "optimal_anqi_uniform")
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), optimal_anqi_uniform)
