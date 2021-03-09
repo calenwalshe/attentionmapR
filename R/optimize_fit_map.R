@@ -39,13 +39,12 @@ optimize_map <- function(efficiency,
                          store_pop = NULL,
                          single_thread = FALSE,
                          cl = NULL) {
-
   # A wrapper function for the objective function.
   # Only required because of lack in consistency between
   # how different optimization package handle input variables.
   # This wrapper is designed for use with DEoptim.
   wrapper_full_objective <- function(x) {
-    try(return({
+    (return({
       full_objective(
         a = x[1],
         b = x[2],
@@ -56,7 +55,7 @@ optimize_map <- function(efficiency,
         efficiency = x[7]
       )
     }))
-    return(Inf) # If there is a failure, return Inf. DEOptim handles this.
+    #return(Inf) # If there is a failure, return Inf. DEOptim handles this.
   }
 
   if (is.null(cl)) {
@@ -67,12 +66,15 @@ optimize_map <- function(efficiency,
     cl = cl,
     varlist = c(
       "wrapper_full_objective",
+      "n_trials",
+      "single_thread",
       "efficiency",
       "prior_type",
       "params_detection",
       "neural_resource",
       "full_objective",
       "f.optim",
+      "subject_fit",
       "f.growth",
       "human_data",
       "estimate_candidate_gain_map",
@@ -389,7 +391,6 @@ full_objective <- function(a, b, c, d, g_min, g_max, efficiency) {
 
 
   # Step 2. Run the search with the new attention map.
-
   model_search <-
     searchR::run_single_search(
       file_id,
@@ -403,10 +404,11 @@ full_objective <- function(a, b, c, d, g_min, g_max, efficiency) {
       single_thread = single_thread
     ) # generic code to run the model. key concept is that the attention map is loaded into the model from disk at runtime via the "file_id" parameter.
 
-
   # Step 3. Transform the raw output from the search into a format used for a. maximum accuracy calculation b. maximum likelihood calculation.
   opt_crit <-
-    model_search %>% searchR::find_optimal_criterion() %>% .$optim %>% .$bestmem # optimal criterion search.
+    model_search %>%
+    searchR::find_optimal_criterion() %>%
+    .$optim %>% .$bestmem # optimal criterion search.
 
   model_search_summary <-
     model_search %>% searchR::import_model(., criterion = opt_crit) %>%
