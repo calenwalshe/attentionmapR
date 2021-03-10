@@ -29,21 +29,34 @@ n_parallel <- 8
 cl <- parallel::makeCluster(n_parallel)
 
 optim_results <- attentionmapsR::optimize_map(efficiency = efficiency,
-                              prior_type = prior_type,
-                              params_detection = params_detection,
-                              seed_val = seed_val,
-                              NP = 24,
-                              n_trials = 2400*4,
-                              n_parallel = n_parallel,
-                              itermax = 12,
-                              lower_bound = list(c(1, .001, 0, 1,    .001, 1,  efficiency)),
-                              upper_bound = list(c(1,    5, 0, 1,      .9,  1,  efficiency)),
-                              single_thread = TRUE,
-                              neural_resource = neural_resource,
-                              start_params = start_params,
-                              human_data = human_data,
-                              subject_fit = T,
-                              store_pop = file_id,
-                              cl = cl)
+                                              prior_type = prior_type,
+                                              params_detection = params_detection,
+                                              seed_val = seed_val,
+                                              NP = 24,
+                                              n_trials = 2400*4,
+                                              n_parallel = n_parallel,
+                                              itermax = 6,
+                                              lower_bound = list(c(1, .001, 0, 1,    .001, 1,  efficiency)),
+                                              upper_bound = list(c(1,    5, 0, 1,      .9,  1,  efficiency)),
+                                              single_thread = TRUE,
+                                              neural_resource = neural_resource,
+                                              start_params = start_params,
+                                              human_data = human_data,
+                                              subject_fit = T,
+                                              store_pop = file_id,
+                                              cl = cl)
+
+parallel::stopCluster(cl)
+try({
+  full_step_results <- purrr::map(list.files(path = storedir, pattern = file_code, full.name = T), function(x) {
+    try({
+      load(x);return(results_list)
+    })
+  })
+
+  optim_results$full_step_results <- full_step_results
+
+  try({save(file = paste0(storedir, 'optim_results_', file_code, '.rda'), optim_results)})
+})
 
 parallel::stopCluster(cl)
