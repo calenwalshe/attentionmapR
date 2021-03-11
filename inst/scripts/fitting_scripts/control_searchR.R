@@ -125,7 +125,6 @@ all_fits_format$rcw_polar_concave$label <- "max_acc_concave"
 
 efficiency_map_1D <- do.call(rbind, all_fits_format)
 
-
 ## Comment out
 # Rcw
 #global_start$start_params <- best_fit_rcw_polar$optim_results$member$pop
