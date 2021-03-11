@@ -1,194 +1,22 @@
-library(tidyverse)
-library(searchR) 
-
-# get the parameters for estimating the models
-map_parameters_df <- searchR::create_linear_map_parameters() %>% as_tibble()
-
-retina_params <- searchR::create_retinal_constants(version = "standard")
-
-load(file = '~/Dropbox/Calen/Work/search/gain_map/neural_resource.rda')
-map_parameters_df$neural_resource <- list(neural_resources = neural_resource$neural_resource)
-map_parameters_df$c_deg <- list(neural_resource$eccentricity)
-map_parameters_df$num_ring <- list(NA)
-map_parameters_df$spacing <- map(map_parameters_df$c_deg, function(x) {searchR::sp_xy(x,0)})
-map_parameters_df$pix_count <- map(map_parameters_df$spacing, function(x) {x^2 * 120^2})
-
-map_parameters_df <- unnest(map_parameters_df)
-
-map_parameters_df <- map_parameters_df %>% 
-  group_by(sp_const, efficiency, prior.scale, n_rings, prior_type, map_prior, subject, scale.dist, params) %>% 
-  nest()
-
-map_parameters_df$efficiency <- round(map_parameters_df$efficiency, 3)
-
-
-map_parameters_df <- map_parameters_df %>% filter(map_prior == "polar")
-n_row <- nrow(map_parameters_df)
-
-efficiency_list <- lapply(1:n_row, FUN = function(x) {
-  total_gain <- map_parameters_df[x, ]$efficiency
-  prior_type <- map_parameters_df[x, ]$prior_type
-  parameter_values <- map_parameters_df[[x, "data"]][[1]]
-  params_detection <- as.numeric(stringr::str_extract_all(map_parameters_df[[x, "params"]], "\\..[:number:]+|[:number:]")[[1]])
-  
-  if(total_gain == 1) {
-    models <- expand.grid(a = c(1), b = c(0))
-  } else {
-    #models <- expand.grid(a = c((seq(0, .7, by = .1)), .375, .4, .425, .45, .475, .5), b = c((64 * (1/2)^(1:12)), .383, .422, .35, .45, .4))
-    #models <- expand.grid(a = c(.4, .8, 1.2), b = c(.5))
-    #models[nrow(models) + 1,] = c(.5, .383) #anqi slope should be  .091
-    #models[nrow(models) + 1,] = c(.4, .422) #rcw slope should be .123
-    #models <- expand.grid(a = c((seq(0, .75, by = .25)), .4, .45, .5, 1.5, total_gain), b = c((16 * (1/2)^(1:6)), .45, .4)) %>%
-    #  unique()
-    #models <- expand.grid(a = c(.05, .1, .15, .2, .25, .3, .325, .35, .375, .4, .425, .5, 1.5), b = c(.4, .45, .5, .55, .6, .65, 1, 1.5, 2, 2.5, 3)) %>%
-    #  unique()
-    #models.1 <- expand.grid(a = c(.45), b_2 = c(1), c = c(1.25, 1.5, 1.75, 1.8, 1.85)) %>%
-    #  unique()    
-    #models.2 <- expand.grid(a = c(.43), b_2 = c(1), c = c(1.25, 1.5, 1.75, 1.8, 1.85)) %>%
-    #  unique()        
-    #models.1 <- expand.grid(a = seq(0, .5, .1), b_2 = 1, c = (16 * 1/(2^(1:8))))
-    #models.2 <- expand.grid(a = seq(1), b_2 = c(2), c = (16 * 1/(2^(1:8))))
-    models.2 <- expand.grid(a = seq(.25), b_2 = c(1), c = c(1))
-    
-    models <- rbind(models.2) %>% unique()
-    
-    #models[nrow(models)+1,] <- c(.459, 1, 1.853)
-    #models[nrow(models)+1,] <- c(.4596,1, 1.853)
-    #models[nrow(models)+1,] <- c(1 * total_gain,1)
-    #models <- models %>% filter(!((a > 1) & (b != 1)))
-    # test points for anqi and calen.
-  }
-  
-  G <- sum(parameter_values$neural_resource) * total_gain
-  neural_resource <- parameter_values$neural_resource
-  
-  f.growth <- function(a, b_1, b_2, c_1, c_2, decay = F) {
-    xmax <- 8
-    x <- parameter_values$c_deg
-    if(!decay) { # experiment is uniform
-      fh <- 1
-      fl <- a + (1-a)*(1-exp(-(x/b_1)^c_1));
-      fh <- a + (1-a)*(1-exp(-((xmax-x)/b_2)^c_2));      
-      val <- apply(cbind(fl, fh), 1, min)      
-    } else { # experiment is polar
-      if(a == 1) { # gain starts at 1 and decreases monotonically
-        a <- ifelse(a==1, 0, a) 
-        b_2 <- b_1
-        fl <- a + (1-a)*(1-exp(-(x/b_1)^c_1));
-        fh <- a + (1-a)*(1-exp(-((xmax-x)/b_2)^c_2));        
-        val <- fh
-      } else {
-        fl <- a + (1-a)*(1-exp(-(x/b_1)^c_1));
-        fh <- a + (1-a)*(1-exp(-((xmax-x)/b_2)^c_2));        
-        val <- apply(cbind(fl, fh), 1, min)
-      }
-    }
-    return(val)
-  }
-
-  
-  f.optim <- function(a, b_1, b_2, c, decay = F) {
-    val <- f.growth(a, b_1, b_2, c_1 = c, c_2 = c, decay)
-    gain <- val
-    neural_response <- neural_resource * gain
-    
-    nrs <- sum(neural_response)
-    error <- sqrt(sum((G - nrs)^2))
-    if(nrs > G) {
-      error <- 2*error
-    }
-    return(error)
-  }
-  
-  decay <- (prior_type == "polar")
-  
-  if(decay != TRUE) {
-    models <- models %>% filter(b_2 == first(b_2))
-  }
-  
-  model_rows <- 1:nrow(models)
-  b_1 <- parallel::mclapply(model_rows, function(x) {
-    a <- models[x,"a"][[1]]
-    b_2 <- models[x, "b_2"][[1]]
-    c <- models[x,"c"][[1]]
-    f <- purrr::partial(f.optim, a = a, b_2 = b_2, c = c, decay = decay); 
-    par <- DEoptim::DEoptim(f, lower = 0, upper = 10, 
-                            DEoptim::DEoptim.control(reltol = 1e-8, 
-                                                     trace = 50, 
-                                                     steptol = 100, 
-                                                     VTR = .001))$optim$bestmem    
-  }, mc.cores = 16)
-
-  models$b_1 <- unlist(b_1)
-  models$decay <- decay
-  
-  dp_vals <- humandetectiondata::f.dprime.no.uni(8, 
-                                                 parameter_values$c_deg * 120, 
-                                                 0, 1, 
-                                                 p_kSp = params_detection[2], 
-                                                 p_k0 = params_detection[1]) # compute d' on the rings for the no uncertainty case.
-  models <- models %>%
-    rowwise() %>%
-    mutate(y.scale = list(f.growth(a, b_1, b_2, c_1 = c, c_2 = c, decay)),
-           y.dprime = list(dp_vals))
-  
-  parameter_values_tmp <- parameter_values %>% 
-    group_by(contrast) %>% 
-    nest()
-  
-  combined_models <- merge(parameter_values_tmp, models) %>% 
-    tibble() %>% 
-    unnest()
-  
-  efficiency_map <- combined_models
-  
-  return(efficiency_map)
-})
-
-map_parameters_df$data <- efficiency_list
-
-map_parameters_df.1 <- map_parameters_df %>%
-  unnest()
-
-efficiency_map_1D <- map_parameters_df.1
-
-efficiency_map_1D <- efficiency_map_1D %>%
-  group_by(efficiency, sp_const, prior_type, map_prior, subject, contrast, scale.dist, a, b_1, b_2, c) %>%
-  nest()
-
-efficiency_map_1D$overcount <- map(1:nrow(efficiency_map_1D), function(x) {
-  abs(efficiency_map_1D$data[[x]]$y.scale %*% efficiency_map_1D$data[[x]]$neural_resource - sum(efficiency_map_1D$data[[x]]$neural_resource * efficiency_map_1D[x, "efficiency"][[1]])) > .01
-}) %>% 
-  unlist()
-  
-efficiency_map_1D <- efficiency_map_1D %>% 
-  mutate(sp_const = stringi::stri_rand_strings(n(), 16)) %>%
-  unnest()
-
-######
-######
-######
 efficiency_map_1D$n_trials <- 2400 * 4
 #efficiency_map_1D$label <- "fits"
 
-efficiency_map_1D <- efficiency_map_1D %>% group_by(subject, sample_type, label) %>% 
+efficiency_map_1D <- efficiency_map_1D %>% group_by(subject, sample_type, label) %>%
   mutate(seed_val = sample(1:1000, 1))
 
 save(file = '/tmp/efficiency_map_1D', efficiency_map_1D)
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/_localjob/run_local_job_interpolate_maps.R', 'local_job_interpolate_maps', exportEnv = "")
-
-
-# To load the previous run: load('/tmp/maps_nested_job')
+rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/run_local_job_interpolate_maps.R',
+                         'local_job_interpolate_maps', exportEnv = "")
 
 # Perform the actual search with the estimated gain fields #
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/_localjob/run_local_job_search.R', 
-                         'local_job_search', 
+rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/run_local_job_search.R',
+                         'local_job_search',
                          exportEnv = "search_results")
 
 gc(reset = TRUE)
 
 # Import/Transform/Store the search results
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/_localjob/local_job_import_search.R',
+rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/local_job_import_search.R',
                          'local_job_import_search',
                          exportEnv = "")
 
