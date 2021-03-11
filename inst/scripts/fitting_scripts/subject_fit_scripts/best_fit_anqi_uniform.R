@@ -15,7 +15,7 @@ human_search_nested <- combined_search %>%
   nest(.key = "imported_human") %>%
   filter(subject == "anqi", sample_type == "uniform")
 
-human_data <- human_search_nested$imported_human[[1]] %>% 
+human_data <- human_search_nested$imported_human[[1]] %>%
   searchR::summary_search(.)
 
 seed_val <- sample(1:10000, 1)
@@ -29,9 +29,9 @@ file_id   <- paste0(storedir, file_code)
 n_parallel <- 8
 cl <- parallel::makeCluster(n_parallel)
 
-optim_results <- optimize_map(efficiency = efficiency, 
-                              prior_type = prior_type, 
-                              params_detection = params_detection, 
+optim_results <- optimize_map(efficiency = efficiency,
+                              prior_type = prior_type,
+                              params_detection = params_detection,
                               seed_val = seed_val,
                               NP = 24,
                               n_trials = 2400 * 4,
@@ -40,10 +40,10 @@ optim_results <- optimize_map(efficiency = efficiency,
                               lower_bound = list(c(1, .001, 0, 1,    .001,  1, 1)),
                               upper_bound = list(c(1,    5, 0, 1,  1,  1,  1 )),
                               single_thread = TRUE,
-                              neural_resource = neural_resource, 
-                              start_params = start_params, 
-                              human_data = human_data, 
-                              subject_fit = T, 
+                              neural_resource = neural_resource,
+                              start_params = start_params,
+                              human_data = human_data,
+                              subject_fit = T,
                               store_pop = file_id,
                               cl = cl)
 
@@ -54,8 +54,11 @@ try({
       load(x);return(results_list)
     })
   })
-  
+
   optim_results$full_step_results <- full_step_results
-  
-  try({save(file = paste0(storedir, 'optim_results_', file_code, '.rda'), optim_results)})  
+
+  try({save(file = paste0(storedir, 'optim_results_', file_code, '.rda'), optim_results)})
 })
+
+tmpenv <- environment()
+save(file = paste0('/tmp/anqiuniformtmpenvironemnt', file_code), tmpenv)

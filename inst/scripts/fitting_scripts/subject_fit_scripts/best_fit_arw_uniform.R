@@ -32,12 +32,12 @@ optim_results <- attentionmapsR::optimize_map(efficiency = NULL,
                                               prior_type = prior_type,
                                               params_detection = params_detection,
                                               seed_val = seed_val,
-                                              NP = 24,
+                                              NP = 48,
                                               n_trials = 2400*4,
                                               n_parallel = n_parallel,
-                                              itermax = 6,
+                                              itermax = 12,
                                               lower_bound = list(c(1, .001, 0, 1,    .001, 1,  .65)),
-                                              upper_bound = list(c(1,    5, 0, 1,      .9,  1,  .8)),
+                                              upper_bound = list(c(1,    5, 0, 1,      .9,  1,  .825)),
                                               single_thread = TRUE,
                                               neural_resource = neural_resource,
                                               start_params = start_params,
@@ -58,8 +58,6 @@ try({
   try({save(file = paste0(storedir, 'optim_results_', file_code, '.rda'), optim_results)})
 })
 
-tmpenv <- environment()
-
-save(file = paste0('/tmp/tmpenvironemnt', file_code), tmpenv)
-
 parallel::stopCluster(cl)
+tmpenv <- environment()
+save(file = paste0('/tmp/arwuniformtmpenvironemnt', file_code), tmpenv)

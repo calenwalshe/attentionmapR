@@ -58,8 +58,8 @@ try({
   try({save(file = paste0(storedir, 'optim_results_', file_code, '.rda'), optim_results)})
 })
 
-tmpenv <- environment()
-
-save(file = paste0('/tmp/tmpenvironemnt', file_code), tmpenv)
-
 parallel::stopCluster(cl)
+
+tmpenv <- environment()
+save(file = paste0('/tmp/arwpolartmpenvironemnt', file_code), tmpenv)
+

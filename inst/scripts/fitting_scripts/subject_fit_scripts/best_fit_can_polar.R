@@ -63,3 +63,5 @@ tmpenv <- environment()
 save(file = paste0('/tmp/tmpenvironemnt', file_code), tmpenv)
 
 parallel::stopCluster(cl)
+tmpenv <- environment()
+save(file = paste0('/tmp/canpolartmpenvironemnt', file_code), tmpenv)

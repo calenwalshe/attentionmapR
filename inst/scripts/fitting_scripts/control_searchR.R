@@ -3,14 +3,14 @@ map(list.files('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/at
 # Anqi
 global_start <- new.env()
 global_start$start_params <- best_fit_anqi_uniform$optim_results$member$pop
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/_scripts/best_fit_anqi_uniform.R', 'best_fit_anqi_uniform',
+rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_anqi_uniform.R', 'best_fit_anqi_uniform',
                          exportEnv = "best_fit_anqi_uniform",
                          importEnv = global_start)
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), best_fit_anqi_uniform)
 
 global_start$start_params <- best_fit_anqi_polar$optim_results$member$pop
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/_scripts/best_fit_anqi_polar.R', 'best_fit_anqi_polar',
+rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_anqi_polar.R', 'best_fit_anqi_polar',
                          exportEnv = "best_fit_anqi_polar",
                          importEnv = global_start)
 file_code <- stringi::stri_rand_strings(1, 16)
@@ -20,7 +20,7 @@ save(file = paste0('/tmp/', file_code), best_fit_anqi_polar)
 
 global_start$start_params <- rbind(best_fit_rcw_uniform$optim_results$member$pop,best_fit_rcw_uniform$optim_results$member$pop)
 #global_start$start_params[,7] <- NULL
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/_scripts/best_fit_rcw_uniform.R',
+rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_rcw_uniform.R',
                          'best_fit_rcw_uniform',
                          exportEnv = "best_fit_rcw_uniform",
                          importEnv = global_start)
@@ -29,7 +29,7 @@ save(file = paste0('/tmp/', file_code), best_fit_rcw_uniform)
 
 global_start$start_params <- NULL
 #global_start$start_params[,7] <- .79
-rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/_scripts/best_fit_rcw_polar.R', 'best_fit_rcw_polar',
+rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_rcw_polar.R', 'best_fit_rcw_polar',
                          exportEnv = "best_fit_rcw_polar",
                          importEnv = global_start)
 file_code <- stringi::stri_rand_strings(1, 16)
@@ -39,7 +39,7 @@ save(file = paste0('/tmp/', file_code), best_fit_rcw_polar)
 global_start <- new.env()
 global_start$start_params <- NULL
 #best_fit_can_uniform_script <- system.file("scripts", "fitting_scripts", "best_fit_can_uniform.R", package = "attentionmapsR")
-best_fit_can_uniform_script <- './inst/scripts/fitting_scripts/best_fit_can_uniform.R'
+best_fit_can_uniform_script <- './inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_can_uniform.R'
 rstudioapi::jobRunScript(best_fit_can_uniform_script, 'best_fit_can_uniform',
                          exportEnv = "best_fit_can_uniform",
                          importEnv = global_start)
@@ -52,7 +52,7 @@ save(file = paste0('/tmp/uniformfinalresult', file_code),
 global_start <- new.env()
 global_start$start_params <- NULL
 #best_fit_can_polar <- system.file("scripts", "fitting_scripts", "best_fit_can_polar.R", package = "attentionmapsR")
-best_fit_can_polar_script <- './inst/scripts/fitting_scripts/best_fit_can_polar.R'
+best_fit_can_polar_script <- './inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_can_polar.R'
 rstudioapi::jobRunScript(best_fit_can_polar_script, 'best_fit_can_polar',
                          exportEnv = "best_fit_can_polar",
                          importEnv = global_start)
@@ -63,8 +63,8 @@ save(file = paste0('/tmp/polarfinalresult', file_code), best_fit_can_polar)
 global_start <- new.env()
 global_start$start_params <- NULL
 #best_fit_can_uniform_script <- system.file("scripts", "fitting_scripts", "best_fit_can_uniform.R", package = "attentionmapsR")
-best_fit_arw_uniform_script <- './inst/scripts/fitting_scripts/best_fit_arw_uniform.R'
-rstudioapi::jobRunScript(best_fit_can_uniform_script, 'best_fit_arw_uniform',
+best_fit_arw_uniform_script <- './inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_arw_uniform.R'
+rstudioapi::jobRunScript(best_fit_arw_uniform_script, 'best_fit_arw_uniform',
                          exportEnv = "best_fit_arw_uniform",
                          importEnv = global_start)
 
