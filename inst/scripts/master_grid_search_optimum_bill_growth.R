@@ -1,3 +1,5 @@
+source('~/Dropbox/Calen/Work/searchR/R/summary_figures.R', echo=TRUE)
+library(tidyverse)
 efficiency_map_1D$n_trials <- 2400 * 4
 #efficiency_map_1D$label <- "fits"
 
@@ -10,15 +12,13 @@ rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/run_local_job_interpola
 
 # Perform the actual search with the estimated gain fields #
 rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/run_local_job_search.R',
-                         'local_job_search',
-                         exportEnv = "search_results")
+                         'local_job_search', exportEnv = "search_results")
 
 gc(reset = TRUE)
 
 # Import/Transform/Store the search results
 rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/local_job_import_search.R',
-                         'local_job_import_search',
-                         exportEnv = "")
+                         'local_job_import_search', exportEnv = "")
 
 load("/tmp/human_model_joined")
 
@@ -58,7 +58,7 @@ llr <- purrr::map2(human_model_joined$summarized_human, human_model_joined$summa
 
 human_model_joined$llr <- unlist(llr)
 
-human_model_joined$label[1:4] <- "best_fit"
+human_model_joined$label[1:2] <- "best_fit"
 human_model_joined$label[c(5,6,10,11)] <- "optimal"
 human_model_joined$label[c(7,8,9,12)] <- "flat"
 human_model_joined$label[c(13, 14)] <- c("max_attn", "max_attn_c")
@@ -74,7 +74,7 @@ figures <- purrr::map(rank, function(x) {
     #filter(cp_rank %in% x) %>%
     #filter(b_2_rank == 1) %>%
     #filter(a == .45) %>%
-    mutate(sp_const = label)
+    mutate(sp_const = label) %>% filter(subject == "arw")
   fig <- plot_full_summary(optimal %>% ungroup())
   fig.out <- gridExtra::grid.arrange(grobs = fig, ncol = 3)
   ggsave(file = paste0('~/Dropbox/Calen/Dropbox/', "test", '.pdf'), fig.out, width = 45, height = 25, units = "in")

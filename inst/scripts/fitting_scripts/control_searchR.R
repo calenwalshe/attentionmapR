@@ -1,5 +1,8 @@
+library(tidyverse)
+
 #load(file = '/tmp/best_fits')
 map(list.files('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/attentionmapR/R/', full.names = T), source)
+
 # Anqi
 global_start <- new.env()
 global_start$start_params <- best_fit_anqi_uniform$optim_results$member$pop
@@ -17,7 +20,6 @@ file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), best_fit_anqi_polar)
 
 # rcw
-
 global_start$start_params <- rbind(best_fit_rcw_uniform$optim_results$member$pop,best_fit_rcw_uniform$optim_results$member$pop)
 #global_start$start_params[,7] <- NULL
 rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_rcw_uniform.R',
@@ -49,7 +51,7 @@ save(file = paste0('/tmp/uniformfinalresult', file_code),
      best_fit_can_uniform)
 
 # can polar
-global_start <- new.env()
+global_start              <- new.env()
 global_start$start_params <- NULL
 #best_fit_can_polar <- system.file("scripts", "fitting_scripts", "best_fit_can_polar.R", package = "attentionmapsR")
 best_fit_can_polar_script <- './inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_can_polar.R'
@@ -60,8 +62,8 @@ file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/polarfinalresult', file_code), best_fit_can_polar)
 
 ## arw Uniform
-global_start <- new.env()
-global_start$start_params <- NULL
+global_start              <- new.env()
+global_start$start_params <- best_fit_arw_uniform$optim_results$member$pop
 #best_fit_can_uniform_script <- system.file("scripts", "fitting_scripts", "best_fit_can_uniform.R", package = "attentionmapsR")
 best_fit_arw_uniform_script <- './inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_arw_uniform.R'
 rstudioapi::jobRunScript(best_fit_arw_uniform_script, 'best_fit_arw_uniform',
@@ -74,12 +76,13 @@ save(file = paste0('/tmp/uniformfinalresult', file_code),
 
 # arw polar
 global_start <- new.env()
-global_start$start_params <- NULL
+global_start$start_params <- best_fit_arw_polar$optim_results$member$pop
 #best_fit_can_polar <- system.file("scripts", "fitting_scripts", "best_fit_can_polar.R", package = "attentionmapsR")
-best_fit_arw_polar_script <- './inst/scripts/fitting_scripts/best_fit_arw_polar.R'
+best_fit_arw_polar_script <- './inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_arw_polar.R'
 rstudioapi::jobRunScript(best_fit_arw_polar_script, 'best_fit_arw_polar',
                          exportEnv = "best_fit_arw_polar",
                          importEnv = global_start)
+
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/polarfinalresult', file_code), best_fit_arw_polar)
 
@@ -118,6 +121,11 @@ all_fits_format$optimal_rcw_polar$label     <- "opt"
 all_fits_format$optimal_rcw_uniform$label   <- "opt"
 all_fits_format$optimal_anqi_polar$label    <- "opt"
 all_fits_format$optimal_anqi_uniform$label  <- "opt"
+all_fits_format$optimal_arw_polar$label    <- "opt"
+all_fits_format$optimal_arw_uniform$label  <- "opt"
+all_fits_format$optimal_can_polar$label    <- "opt"
+all_fits_format$optimal_can_uniform$label  <- "opt"
+
 
 all_fits_format$rcw_uniform_max$label <- "max_acc_unif"
 all_fits_format$rcw_polar_bump$label  <- "max_acc_bump"
@@ -148,6 +156,7 @@ rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/g
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), optimal_rcw_uniform)
 
+
 ## Anqi
 #global_start$start_params <- best_fit_anqi_polar$optim_results$member$pop
 rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/gain_map/flat_anqi_polar.R', 'flat_anqi_polar',
@@ -169,4 +178,30 @@ rstudioapi::jobRunScript('~/Dropbox/Calen/Work/search/modeling/_analysis/_code/g
                          exportEnv = "optimal_anqi_uniform")
 file_code <- stringi::stri_rand_strings(1, 16)
 save(file = paste0('/tmp/', file_code), optimal_anqi_uniform)
+
+## Arw
+global_start <- new.env()
+global_start$start_params <- NULL
+rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/optimal_arw_polar.R', 'optimal_arw_polar',
+                         exportEnv = "optimal_arw_polar")
+file_code <- stringi::stri_rand_strings(1, 16)
+save(file = paste0('/tmp/', file_code), optimal_arw_polar)
+
+rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/optimal_arw_uniform.R', 'optimal_arw_uniform',
+                         exportEnv = "optimal_arw_uniform")
+file_code <- stringi::stri_rand_strings(1, 16)
+save(file = paste0('/tmp/', file_code), optimal_arw_uniform)
+
+## Can
+global_start <- new.env()
+global_start$start_params <- NULL
+rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/optimal_can_polar.R', 'optimal_can_polar',
+                         exportEnv = "optimal_can_polar")
+file_code <- stringi::stri_rand_strings(1, 16)
+save(file = paste0('/tmp/', file_code), optimal_can_polar)
+
+rstudioapi::jobRunScript('./inst/scripts/fitting_scripts/optimal_can_uniform.R', 'optimal_can_uniform',
+                         exportEnv = "optimal_can_uniform")
+file_code <- stringi::stri_rand_strings(1, 16)
+save(file = paste0('/tmp/', file_code), optimal_can_uniform)
 

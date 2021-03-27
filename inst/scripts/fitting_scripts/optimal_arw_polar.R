@@ -2,10 +2,10 @@
 library(tidyverse)
 combined_search <- humansearchdata::combined_search
 neural_resource <- attentionmapsR::neural_resource
-efficiency <- .83
+efficiency <- 1
 prior_type <- "polar"
 params_detection <- "[.756, .2, 1]"
-start_params <- global_start$start_params
+start_params <- NULL
 
 human_search_nested <- combined_search %>%
   mutate(contrast = .175) %>%
@@ -17,27 +17,27 @@ human_search_nested <- combined_search %>%
 human_data <- human_search_nested$imported_human[[1]] %>%
   searchR::summary_search(.)
 
-seed_val <- sample(1:10000, 1)
+seed_val  <- sample(1:10000, 1)
 set.seed(seed_val)
-timenow <- timestamp()
-storedir <- paste0('/tmp/', timenow, '/')
+timenow   <- timestamp()
+storedir  <- paste0('/tmp/', timenow, '/')
 dir.create(storedir)
 file_code <- stringi::stri_rand_strings(1, 16)
 file_id   <- paste0(storedir, file_code)
 
-n_parallel <- 8
-cl <- parallel::makeCluster(n_parallel)
+n_parallel  <- 4
+cl          <- parallel::makeCluster(n_parallel)
 
-optim_results <- attentionmapsR::optimize_map(efficiency = efficiency,
+optim_results <- attentionmapsR::optimize_map(efficiency = 1,
                                               prior_type = prior_type,
                                               params_detection = params_detection,
                                               seed_val = seed_val,
-                                              NP = 24,
+                                              NP = 4,
                                               n_trials = 2400*4,
                                               n_parallel = n_parallel,
-                                              itermax = 12,
-                                              lower_bound = list(c(1, .001, 0, 1,    .001, 1,  efficiency)),
-                                              upper_bound = list(c(1,    5, 0, 1,      .9,  1,  efficiency)),
+                                              itermax = 1,
+                                              lower_bound = list(c(1, .001, 0, 1,    1, 1,  1)),
+                                              upper_bound = list(c(1,    5, 0, 1,      1,  1,  1)),
                                               single_thread = TRUE,
                                               neural_resource = neural_resource,
                                               start_params = start_params,
@@ -59,7 +59,5 @@ try({
 })
 
 parallel::stopCluster(cl)
-
 tmpenv <- environment()
-save(file = paste0('/tmp/arwpolartmpenvironemnt', file_code), tmpenv)
-
+save(file = paste0('/tmp/arwuniformtmpenvironemnt', file_code), tmpenv)

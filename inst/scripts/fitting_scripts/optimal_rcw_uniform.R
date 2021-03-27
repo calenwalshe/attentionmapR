@@ -15,7 +15,7 @@ human_search_nested <- combined_search %>%
   nest(.key = "imported_human") %>%
   filter(subject == "rcw", sample_type == "uniform")
 
-human_data <- human_search_nested$imported_human[[1]] %>% 
+human_data <- human_search_nested$imported_human[[1]] %>%
   searchR::summary_search(.)
 
 
@@ -31,9 +31,9 @@ file_id   <- paste0(storedir, file_code)
 n_parallel <- 4
 cl <- parallel::makeCluster(n_parallel)
 
-optim_results <- optimize_map(efficiency = efficiency, 
-                              prior_type = prior_type, 
-                              params_detection = params_detection, 
+optim_results <- optimize_map(efficiency = efficiency,
+                              prior_type = prior_type,
+                              params_detection = params_detection,
                               seed_val = seed_val,
                               NP = 4,
                               n_trials = 2400,
@@ -42,10 +42,10 @@ optim_results <- optimize_map(efficiency = efficiency,
                               lower_bound = list(c(1, .001, 0,    1,  1,   1,  1)),
                               upper_bound = list(c(1, 8,    0,    1,  1,   1, 1)),
                               single_thread = TRUE,
-                              neural_resource = neural_resource, 
-                              start_params = start_params, 
-                              human_data = human_data, 
-                              subject_fit = F, 
+                              neural_resource = neural_resource,
+                              start_params = start_params,
+                              human_data = human_data,
+                              subject_fit = F,
                               store_pop = file_id,
                               cl = cl)
 

@@ -111,7 +111,6 @@ optimize_map <- function(efficiency,
   )
   return(optim_results)
 }
-
 #' Create a single map and save it.
 #'
 #' @param a
@@ -345,6 +344,8 @@ f.optim <-
 #'
 #' @return
 #'
+#'
+#' @export
 #' @examples
 full_objective <- function(a, b, c, d, g_min, g_max, efficiency) {
   if (prior_type == "polar") {
@@ -407,6 +408,7 @@ full_objective <- function(a, b, c, d, g_min, g_max, efficiency) {
   # Step 3. Transform the raw output from the search into a format used for a. maximum accuracy calculation b. maximum likelihood calculation.
   opt_crit <-
     model_search %>%
+    mutate(offset = .5) %>%
     searchR::find_optimal_criterion() %>%
     .$optim %>% .$bestmem # optimal criterion search.
 
@@ -419,16 +421,15 @@ full_objective <- function(a, b, c, d, g_min, g_max, efficiency) {
   # Rare, but to avoid 0s (bad for maximum likelihood) we substitute the proportion with 1 (2 * num_trials_human)
   model_search_summary$prop <-
     ifelse(model_search_summary$prop == 0,
-           1 / 4800,
+           1 / 9600,
            model_search_summary$prop)
 
   human_data$prop <-
-    ifelse(human_data$prop == 0, 1 / 4800, human_data$prop)
+    ifelse(human_data$prop == 0, 1 / 2400, human_data$prop)
 
   # Normalize so sum(prop) = 1
-  model_search_summary$prop <-
-    model_search_summary$prop / sum(model_search_summary$prop)
-  human_data$prop <- human_data$prop / sum(human_data$prop)
+  model_search_summary$prop <- model_search_summary$prop / sum(model_search_summary$prop)
+  human_data$prop           <- human_data$prop / sum(human_data$prop)
 
   # Formatting for maximum likelihood calculation. And for data storage.
   A <-

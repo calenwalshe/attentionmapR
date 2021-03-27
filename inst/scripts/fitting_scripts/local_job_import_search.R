@@ -9,7 +9,10 @@ trials <- unlist(map(maps_nested_job$raw_search, class))
 maps_nested_job <- maps_nested_job[!(trials == "try-error"), ]
 
 # estimate two types of criterion values. leads to different levels of search accuracy
-optimal_criterion   <- mclapply(maps_nested_job$raw_search, FUN = function(x) searchR::find_optimal_criterion(x), mc.cores = 16) # optimal criterion for search
+optimal_criterion   <- mclapply(maps_nested_job$raw_search,
+                                FUN = function(x)
+                                  searchR::find_optimal_criterion(x), mc.cores = 16
+                                ) # optimal criterion for search
 maps_nested_job$optimal_criterion <- unlist(map(optimal_criterion, c(1,1)))
 
 # Import the model, use the importer function defined in pacakge searchR
