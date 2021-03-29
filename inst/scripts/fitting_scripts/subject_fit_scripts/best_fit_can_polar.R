@@ -2,7 +2,7 @@
 library(tidyverse)
 combined_search <- humansearchdata::combined_search
 neural_resource <- attentionmapsR::neural_resource
-efficiency <- .66
+efficiency <- 0.682
 prior_type <- "polar"
 params_detection <- "[.876, .147, 1]"
 start_params <- NULL
@@ -28,14 +28,14 @@ file_id   <- paste0(storedir, file_code)
 n_parallel <- 8
 cl <- parallel::makeCluster(n_parallel)
 
-optim_results <- attentionmapsR::optimize_map(efficiency = NULL,
+optim_results <- attentionmapsR::optimize_map(efficiency = efficiency,
                                               prior_type = prior_type,
                                               params_detection = params_detection,
                                               seed_val = seed_val,
                                               NP = 24,
                                               n_trials = 2400*4,
                                               n_parallel = n_parallel,
-                                              itermax = 6,
+                                              itermax = 2,
                                               lower_bound = list(c(1, .001, 0, 1,    .001, 1,  efficiency)),
                                               upper_bound = list(c(1,    5, 0, 1,      .9,  1,  efficiency)),
                                               single_thread = TRUE,

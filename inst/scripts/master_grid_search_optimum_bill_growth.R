@@ -29,10 +29,6 @@ human_model_joined$d <- unlist(purrr::map(human_model_joined$data, function(x) {
 human_model_joined$g_min <- unlist(purrr::map(human_model_joined$data, function(x) {x$g_min %>% unique()}))
 human_model_joined$g_max <- unlist(purrr::map(human_model_joined$data, function(x) {x$g_max %>% unique()}))
 
-#human_model_joined <- human_model_joined %>% filter(!(a == 1 & b_2 != 1 & b_1 != 1))
-#human_model_joined[human_model_joined$a == 1, "b_1"] <- 0
-
-
 human_model_joined <- human_model_joined %>%
   ungroup() %>%
   mutate(efficiency_percent = round(efficiency / max(efficiency), 3)) %>%
@@ -46,20 +42,10 @@ human_model_joined <- human_model_joined %>%
          g_max_rank = dense_rank(g_max),
          sp_const = b)
 
-llr <- purrr::map2(human_model_joined$summarized_human, human_model_joined$summarized_model_optimal, function(x, y) {
-    merged_df <- left_join(x, y, by = c("radius", "dist.group", "dist.group.click", "type"))
-    merged_df$prop.x <- ifelse(merged_df$prop.x == 0, 1/2400, merged_df$prop.x)
-    merged_df$prop.y <- ifelse(merged_df$prop.y == 0, 1/2400, merged_df$prop.y)
-    merged_df$prop.y <- merged_df$prop.y / sum(merged_df$prop.y)
-    merged_df$prop.x <- merged_df$prop.x / sum(merged_df$prop.x)
+human_model_joined <- human_model_joined %>% arrange(efficiency)
 
-    llr <- -sum(merged_df$prop.x * log(merged_df$prop.y))
-    })
-
-human_model_joined$llr <- unlist(llr)
-
-human_model_joined$label[1:2] <- "best_fit"
-human_model_joined$label[c(5,6,10,11)] <- "optimal"
+human_model_joined$label[1:4] <- "best_fit"
+human_model_joined$label[c(5,6,7,8)] <- "optimal"
 human_model_joined$label[c(7,8,9,12)] <- "flat"
 human_model_joined$label[c(13, 14)] <- c("max_attn", "max_attn_c")
 human_model_joined$label[c(15)] <- "max_attn_b"

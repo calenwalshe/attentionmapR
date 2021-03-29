@@ -8,6 +8,21 @@ load('/tmp/maps_nested_job')
 trials <- unlist(map(maps_nested_job$raw_search, class))
 maps_nested_job <- maps_nested_job[!(trials == "try-error"), ]
 
+maps_nested_job <- maps_nested_job %>% mutate(offset = ifelse(subject == "arw", .75,
+                                                 ifelse(subject == "rcw", .5,
+                                                        ifelse(subject == "anqi", .5,
+                                                               ifelse(subject == "can", 1)))))
+
+# click offsets
+maps_nested_job$raw_search <- purrr::map2(maps_nested_job$subject, maps_nested_job$raw_search, function(x,y) {
+  offset = ifelse(x == "arw", .75,
+                  ifelse(x == "rcw", .5,
+                         ifelse(x == "anqi", .5,
+                                ifelse(x == "can", 1))))
+  y$offset <- offset
+  return(y)
+})
+
 # estimate two types of criterion values. leads to different levels of search accuracy
 optimal_criterion   <- mclapply(maps_nested_job$raw_search,
                                 FUN = function(x)

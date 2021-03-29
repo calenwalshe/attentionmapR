@@ -25,7 +25,7 @@ dir.create(storedir)
 file_code <- stringi::stri_rand_strings(1, 16)
 file_id   <- paste0(storedir, file_code)
 
-n_parallel <- 8
+n_parallel <- 4
 cl <- parallel::makeCluster(n_parallel)
 
 optim_results <- attentionmapsR::optimize_map(efficiency = NULL,
@@ -35,9 +35,9 @@ optim_results <- attentionmapsR::optimize_map(efficiency = NULL,
                                               NP = 24,
                                               n_trials = 2400*4,
                                               n_parallel = n_parallel,
-                                              itermax = 6,
+                                              itermax = 2,
                                               lower_bound = list(c(1, .001, 0, 1,    .001, 1,  .65)),
-                                              upper_bound = list(c(1,    5, 0, 1,      .9,  1,  .8)),
+                                              upper_bound = list(c(1,    5, 0, 1,      .9,  1,  .9)),
                                               single_thread = TRUE,
                                               neural_resource = neural_resource,
                                               start_params = start_params,
