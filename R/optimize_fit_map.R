@@ -405,20 +405,39 @@ full_objective <- function(a, b, c, d, g_min, g_max, efficiency) {
       single_thread = single_thread
     ) # generic code to run the model. key concept is that the attention map is loaded into the model from disk at runtime via the "file_id" parameter.
 
+  # Parse the parameters
+  params_detection_parsed <-
+    as.numeric(stringr::str_extract_all(params_detection, "\\..[:number:]+|[:number:]")[[1]])
+  # Rather than refactor the parameter vector is used to select between subjects
+  subject_selector <- params_detection_parsed[1]
+  if(subject_selector == .756) { #arw
+    offset_val <- .75
+  } else if(subject_selector == .876) { # can
+    offset_val <- 1
+  } else if(subject_selector == .92) { # rcw
+    offset_val <- .5
+  } else if(subject_selector == .87) {
+    offset_val <- .5
+  } else {
+    offset_val <- .5
+    warning('Subject not recognized by parameter value')
+  }
+
   # Step 3. Transform the raw output from the search into a format used for a. maximum accuracy calculation b. maximum likelihood calculation.
+  paste0('Offset used:', offset_val)
   opt_crit <-
     model_search %>%
-    mutate(offset = .5) %>%
-    searchR::find_optimal_criterion() %>%
+    mutate(offset = offset_val) %>%
+    searchR::find_optimal_criterion(.) %>%
     .$optim %>% .$bestmem # optimal criterion search.
 
   model_search_summary <-
     model_search %>% searchR::import_model(., criterion = opt_crit) %>%
-    humansearchdata::add_threshold(.) %>%
+    humansearchdata::add_threshold(., offset = offset_val) %>%
     humansearchdata::add_accuracy() %>%
     searchR::summary_search() # compute the performance of the model resulting from using the estimated attention map
 
-  # Rare, but to avoid 0s (bad for maximum likelihood) we substitute the proportion with 1 (2 * num_trials_human)
+  # Rare, but to avoid 0s (bad for maximum likelihood) we substitute the proportion with 1 / (num trials)
   model_search_summary$prop <-
     ifelse(model_search_summary$prop == 0,
            1 / 9600,

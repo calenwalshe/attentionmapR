@@ -25,7 +25,7 @@ dir.create(storedir)
 file_code <- stringi::stri_rand_strings(1, 16)
 file_id   <- paste0(storedir, file_code)
 
-n_parallel  <- 4
+n_parallel  <- 1
 cl          <- parallel::makeCluster(n_parallel)
 
 optim_results <- attentionmapsR::optimize_map(efficiency = 1,

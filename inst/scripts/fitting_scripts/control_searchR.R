@@ -39,7 +39,7 @@ save(file = paste0('/tmp/', file_code), best_fit_rcw_polar)
 
 # can uniform
 global_start <- new.env()
-global_start$start_params <- NULL
+global_start$start_params <- best_fit_can_uniform$optim_results$member$pop
 #best_fit_can_uniform_script <- system.file("scripts", "fitting_scripts", "best_fit_can_uniform.R", package = "attentionmapsR")
 best_fit_can_uniform_script <- './inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_can_uniform.R'
 rstudioapi::jobRunScript(best_fit_can_uniform_script, 'best_fit_can_uniform',
@@ -52,7 +52,7 @@ save(file = paste0('/tmp/uniformfinalresult', file_code),
 
 # can polar
 global_start              <- new.env()
-global_start$start_params <- NULL
+global_start$start_params <- best_fit_can_polar$optim_results$member$pop
 #best_fit_can_polar <- system.file("scripts", "fitting_scripts", "best_fit_can_polar.R", package = "attentionmapsR")
 best_fit_can_polar_script <- './inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_can_polar.R'
 rstudioapi::jobRunScript(best_fit_can_polar_script, 'best_fit_can_polar',
@@ -76,7 +76,7 @@ save(file = paste0('/tmp/uniformfinalresult', file_code),
 
 # arw polar
 global_start <- new.env()
-global_start$start_params <- best_fit_arw_polar$optim_results$member$pop
+global_start$start_params <- NULL
 #best_fit_can_polar <- system.file("scripts", "fitting_scripts", "best_fit_can_polar.R", package = "attentionmapsR")
 best_fit_arw_polar_script <- './inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_arw_polar.R'
 rstudioapi::jobRunScript(best_fit_arw_polar_script, 'best_fit_arw_polar',
@@ -96,11 +96,14 @@ best_fits$can_polar    <- best_fit_can_polar
 best_fits$can_uniform  <- best_fit_can_uniform
 best_fits$arw_polar    <- best_fit_arw_polar
 best_fits$arw_uniform  <- best_fit_arw_uniform
+best_fits$optimal_arw_uniform <- optimal_arw_uniform
+best_fits$optimal_arw_polar <- optimal_arw_polar
+best_fits$optimal_can_uniform <- optimal_can_uniform
+best_fits$optimal_can_polar <- optimal_can_polar
 
 
 best_fits$rcw_uniform_max   <- all_fits[[16]]$optim_results$optim
 best_fits$rcw_polar_concave <- all_fits$rcw_polar_concave
-best_fits_format            <- purrr::map(best_fits, attentionmapsR::format_optimizer_results)
 
 all_fits_format                     <- purrr::map(best_fits, attentionmapsR::format_optimizer_results)
 all_fits_format$rcw_polar$label     <- "fit"

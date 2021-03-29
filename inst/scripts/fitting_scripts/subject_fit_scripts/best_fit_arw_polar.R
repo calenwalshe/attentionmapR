@@ -2,7 +2,7 @@
 library(tidyverse)
 combined_search <- humansearchdata::combined_search
 neural_resource <- attentionmapsR::neural_resource
-efficiency <- .83
+efficiency <- 0.85
 prior_type <- "polar"
 params_detection <- "[.756, .2, 1]"
 start_params <- global_start$start_params
