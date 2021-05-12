@@ -77,6 +77,7 @@ error <- map2(human_model_joined$summarized_human, human_model_joined$summarized
 
                 sum(c(y[y$type == "cr", "prop"][[1]], y[y$type == "hit", "prop"][[1]]))
               })
+
 human_model_joined$error <- unlist(error)
 
 # rename columns

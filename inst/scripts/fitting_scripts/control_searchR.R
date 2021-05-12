@@ -76,7 +76,7 @@ save(file = paste0('/tmp/uniformfinalresult', file_code),
 
 # arw polar
 global_start <- new.env()
-global_start$start_params <- NULL
+global_start$start_params <- best_fit_arw_polar$optim_results$member$pop
 #best_fit_can_polar <- system.file("scripts", "fitting_scripts", "best_fit_can_polar.R", package = "attentionmapsR")
 best_fit_arw_polar_script <- './inst/scripts/fitting_scripts/subject_fit_scripts/best_fit_arw_polar.R'
 rstudioapi::jobRunScript(best_fit_arw_polar_script, 'best_fit_arw_polar',

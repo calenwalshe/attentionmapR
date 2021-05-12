@@ -60,7 +60,7 @@ figures <- purrr::map(rank, function(x) {
     #filter(cp_rank %in% x) %>%
     #filter(b_2_rank == 1) %>%
     #filter(a == .45) %>%
-    mutate(sp_const = label) %>% filter(subject == "arw")
+    mutate(sp_const = label) %>% filter(subject == "anqi", sp_const != "flat")
   fig <- plot_full_summary(optimal %>% ungroup())
   fig.out <- gridExtra::grid.arrange(grobs = fig, ncol = 3)
   ggsave(file = paste0('~/Dropbox/Calen/Dropbox/', "test", '.pdf'), fig.out, width = 45, height = 25, units = "in")
